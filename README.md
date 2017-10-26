@@ -1,6 +1,8 @@
 
 # ArangoDB Rust Driver
 
+[![Join the chat at https://gitter.im/innoave/arangodb-rust-driver](https://badges.gitter.im/innoave/arangodb-rust-driver.svg)](https://gitter.im/innoave/arangodb-rust-driver?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Crates.io][crb]][crl]
 [![Docs.rs][dcb]][dcl]
 [![Build Status][tcb]][tcl]
