@@ -1,36 +1,43 @@
 
-# ArangoDB Rust Driver
+# Rincon
+
+[![Join the chat at https://gitter.im/innoave/rincon](https://badges.gitter.im/innoave/rincon.svg)](https://gitter.im/innoave/rincon?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Crates.io][crb]][crl]
 [![Docs.rs][dcb]][dcl]
-[![Build Status][tcb]][tcl]
+[![Linux Build Status][tcb]][tcl]
+[![Windows Build Status][avb]][avl]
 [![codevoc.io][cvb]][cvl]
 [![Apache-2.0][lib]][lil]
 [![Join the chat][gcb]][gcl]
 
-[crb]: https://img.shields.io/crates/v/arangodb_client.svg?style=flat-square
-[dcb]: https://docs.rs/arangodb_client/badge.svg
-[tcb]: https://img.shields.io/travis/innoave/arangodb-rust-driver/master.svg?style=flat-square
-[cvb]: https://img.shields.io/codecov/c/github/innoave/arangodb-rust-driver/master.svg?style=flat-square
-[lib]: https://img.shields.io/badge/license-Apache%2D%2D2%2E0-blue.svg?style=flat-square
-[gcb]: https://badges.gitter.im/innoave/general.svg?style=flat-square
+[crb]: https://img.shields.io/crates/v/rincon_client.svg
+[dcb]: https://docs.rs/rincon_client/badge.svg
+[tcb]: https://travis-ci.org/innoave/rincon.svg?branch=master
+[avb]: https://ci.appveyor.com/api/projects/status/github/innoave/rincon?branch=master&svg=true
+[cvb]: https://codecov.io/gh/innoave/rincon/branch/master/graph/badge.svg
+[lib]: https://img.shields.io/badge/license-Apache%2D%2D2%2E0-blue.svg
+[gcb]: https://badges.gitter.im/innoave/arangodb-rust-driver.svg
 
-[crl]: https://crates.io/crates/arangodb_client/
-[dcl]: https://docs.rs/arangodb_client
-[tcl]: https://travis-ci.org/innoave/arangodb-rust-driver/
-[cvl]: https://codecov.io/github/innoave/arangodb-rust-driver?branch=master
+[crl]: https://crates.io/crates/rincon_client
+[dcl]: https://docs.rs/rincon_client
+[tcl]: https://travis-ci.org/innoave/rincon
+[avl]: https://ci.appveyor.com/project/innoave/rincon
+[cvl]: https://codecov.io/github/innoave/rincon?branch=master
 [lil]: https://www.apache.org/licenses/LICENSE-2.0
-[gcl]: https://gitter.im/innoave/arangodb_client
+[gcl]: https://gitter.im/innoave/arangodb-rust-driver
 
-An ArangoDB client for Rust. It enables low level access to ArangoDB in a
-typesafe and Rust idiomatic manner. 
+[Rincon] is an [ArangoDB] driver for [Rust]. It enables low level access to
+[ArangoDB] in a typesafe and [Rust] idiomatic manner. 
+
+The name [Rincon][Rincon name] is derived from the [Avocado variety list].
 
 <!--TODO uncomment this section once the first release has been published
-[Documentation](https://docs.rs/arangodb_client)
+[Documentation]
 -->
 
 The vision for this project is to provide a fast and typesafe client lib for
-easy and flexible use of ArangoDB in applications.  
+easy and flexible use of [ArangoDB] in applications.  
 
 **Status: Experimental**
 
@@ -38,9 +45,15 @@ This project is under heavy development. There is no released version yet.
 
 The plans are to provide:
 
-* A typesafe and low level driver API for the REST API of ArangoDB. (WIP)
+* A typesafe low level driver API for the [ArangoDB REST API]. (WIP)
 * Convenience 'Session'-API on top of the driver API. (PLANNED)
-* API to compose AQL queries in a typesafe manner. (PLANNED)
+* API to compose [AQL] queries in a typesafe manner. (PLANNED)
+
+Currently I am working on the driver API for the REST API. There are a lot 
+methods in the REST API which require a lot of coding. Therefore I have
+split the implementation into 2 milestones. The details about the planned
+milestones and progress is documented in
+[docs/arangodb_rest_api_methods.md](docs/arangodb_rest_api_methods.md)
 
 ## Ideas
 
@@ -70,7 +83,7 @@ e.g. something like
     let document = collection.get_document(..);
 ```
 
-a main purpose of the session shall be:
+The main purpose of the session shall be:
 * no need to specify the database and collection on each and every request.
 * reuse of connections to the database, e.g. from a connection pool, for
   speed and efficient use of resources.
@@ -82,7 +95,7 @@ a main purpose of the session shall be:
 e.g. something like
 
 ```
-    let query = Aql::From(customers)
+    let query = Aql::from(customers)
         .filter(|c| c.age == 42)
         .limit(10)
         .return(|c| (c.name, c.age, c.city))
@@ -90,33 +103,119 @@ e.g. something like
     let results = query.results(session);
 ```
 
+## Crate Features
+
+This crate can be compiled with optional features to adapt to the configuration
+of the [ArangoDB] server to be used.
+
+The provided crate features are:
+
+* `cluster` : support for cluster specific features (optional)
+* `enterprise` : support for [AangoDB] enterprise specific features (optional)
+* `mmfiles` : support for MMFiles storage engine specific features (default)
+* `rocksdb` : support for RocksDB storage engine specific features (optional)
+
+Note1: If `rincon_client` is compiled with the `cluster` feature some API
+       methods which return cluster specific fields do not work with an
+       [ArangoDB] server that is not configured in a cluster. This is due to
+       the [ArangoDB] server does not return cluster specific fields in a 
+       single server configuration.
+       
+Note2: A deployed [ArangoDB] server uses either MMFiles or RocksDB storage
+       engine. Therefore this crate must be compiled either with the
+       `mmfiles` feature enabled or the `rocksdb` feature, but not both.  
 
 <!--TODO uncomment this section once the first release has been published
 ## Usage
 
-Add this to your `Cargo.toml`:
+#### Examples:
+
+**Single server with MMFiles storage engine**
+
+By default `rincon_client` is compiled with support for single server
+configurations using the MMFiles storage engine.
+
+Add this to your `Cargo.toml` to use this crate with default features:
 
 ```toml
 [dependencies]
-arangodb_client = "0.1"
+rincon_client = "0.1"
 ```
 
-And add this to your crate:
+This is equivalent to:
 
-```rust
-extern crate arangodb_client;
+```toml
+[dependencies]
+rincon_client = { version = "0.1", default-features = false, features = ["mmfiles"] }
 ```
 
-See the [client example](./examples/client.rs) for a working example.
+**Using RocksDB storage engine**
+
+If the [ArangoDB] server is configured to use the RocksDB storage engine,
+`rincon_client` should be compiled with the `rocksdb` feature to support
+RocksDB specific attributes and fields within the API methods.
+
+```toml
+[dependencies]
+rincon_client = { version = "0.1", default-features = false, features = ["rocksdb"] }
+```
+
+**Using an [ArangoDB] Cluster**
+
+To use the [ArangoDB] cluster specific features of the API, `rincon_client`
+must be compiled with the `cluster` feature enabled.
+
+To use a clustered server with MMFiles storage engine and enterprise features
+add this to your dependencies:
+
+```toml
+[dependencies]
+rincon_client = { version = "0.1", features = ["cluster"] }
+```
+
+To use a clustered server with RocksDB storage engine add this to your dependencies:
+
+```toml
+[dependencies]
+rincon_client = { version = "0.1", default-features = false, features = ["rocksdb", "cluster"] }
+```
+
+**Using [ArangoDB] Enterprise features**
+
+To add support for [ArangoDB] enterprise features in the client API add this to
+your dependencies:
+
+```toml
+[dependencies]
+rincon_client = { version = "0.1", features = ["enterprise"] }
+```
+
+And with RocksDB storage engine instead of MMFiles:
+
+```toml
+[dependencies]
+rincon_client = { version = "0.1", default-features = false, features = ["rocksdb", "enterprise"] }
+```
 -->
 
 ## License
 
 Licensed under Apache License, Version 2.0<br/>
-see [LICENSE](LICENSE) or http://www.apache.org/licenses/LICENSE-2.0) for details.
+see [LICENSE] or http://www.apache.org/licenses/LICENSE-2.0 for details.
 
 ### Contribution
 
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be licensed as above, without any
 additional terms or conditions.
+
+
+[ArangoDB]: https://www.arangodb.org
+[ArangoDB REST API]: https://docs.arangodb.com/3.2/HTTP/index.html
+[AQL]: https://docs.arangodb.com/3.2/AQL/index.html
+[Avocado variety list]: http://www.ucavo.ucr.edu/AvocadoVarieties/VarietyFrame.html
+[Documentation]: https://docs.rs/rincon_client
+[LICENSE]: LICENSE
+[Rincon]: https://github.com/innoave/rincon
+[Rincon name]: http://ucavo.ucr.edu/avocadovarieties/VarietyList/Rincon.html
+[Rust]: https://www.rust-lang.org
