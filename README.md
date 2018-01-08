@@ -62,7 +62,7 @@ expect that any code snippet provided here will compile or work yet.
 
 e.g. something like
 
-```
+```rust
     let method = CreateCollection::with_name("my_collection");
     let result = connection.execute(method);
 ```
@@ -71,7 +71,7 @@ e.g. something like
 
 e.g. something like
 
-```
+```rust
     let session = datasource.create_session();
     let database = session.use_database("my_database");
     let collection = database.create_collection("my_new_collection");
@@ -90,7 +90,7 @@ The main purpose of the session shall be:
 
 e.g. something like
 
-```
+```rust
     let query = Aql::from(customers)
         .filter(|c| c.age == 42)
         .limit(10)
