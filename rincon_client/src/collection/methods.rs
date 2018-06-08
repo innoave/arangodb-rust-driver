@@ -368,6 +368,94 @@ impl Prepare for GetCollection {
     }
 }
 
+/// Fetch the checksum of the collection identified by the given name.
+#[derive(Debug, Clone, PartialEq)]
+pub struct GetCollectionChecksum {
+    name: String,
+    with_revisions: bool,
+    with_data: bool,
+}
+
+impl GetCollectionChecksum {
+    /// Constructs a new instance of the `GetCollectionChecksum` method.
+    pub fn new(name: String) -> Self {
+        GetCollectionChecksum {
+            name,
+            with_revisions: false,
+            with_data: false,
+        }
+    }
+
+    /// Constructs a new instance of the `GetCollectionChecksum` method to
+    /// get the revision of the collection with the given name.
+    pub fn with_name<N>(name: N) -> Self
+        where N: Into<String>
+    {
+        GetCollectionChecksum {
+            name: name.into(),
+            with_revisions: false,
+            with_data: false,
+        }
+    }
+
+    /// Set whether whether or not to include document revision ids in the
+    /// checksum calculation.
+    pub fn set_with_revisions(&mut self, with_revisions: bool) {
+        self.with_revisions = with_revisions;
+    }
+
+    /// Set whether whether or not to include document document body data
+    /// in the checksum calculation.
+    pub fn set_with_data(&mut self, with_data: bool) {
+        self.with_data = with_data;
+    }
+
+    /// Returns the name of the function that it will get the checksum of.
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+}
+
+impl Method for GetCollectionChecksum {
+    type Result = CollectionChecksum;
+    const RETURN_TYPE: RpcReturnType = RpcReturnType {
+        result_field: None,
+        code_field: Some(FIELD_CODE),
+    };
+}
+
+impl Prepare for GetCollectionChecksum {
+    type Content = ();
+
+    fn operation(&self) -> Operation {
+        Operation::Read
+    }
+
+    fn path(&self) -> String {
+        String::from(PATH_API_COLLECTION)
+            + "/" + &self.name + "/checksum"
+    }
+
+    fn parameters(&self) -> Parameters {
+        let mut params = Parameters::with_capacity(2);
+        if !self.with_revisions {
+            params.insert(PARAM_WITH_REVISIONS, 0);
+        }
+        if !self.with_data {
+            params.insert(PARAM_WITH_DATA, 0);
+        }
+        params
+    }
+
+    fn header(&self) -> Parameters {
+        Parameters::empty()
+    }
+
+    fn content(&self) -> Option<&Self::Content> {
+        None
+    }
+}
+
 /// Fetch the revision of the collection identified by the given name.
 #[derive(Debug, Clone, PartialEq)]
 pub struct GetCollectionRevision {

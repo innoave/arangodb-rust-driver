@@ -59,6 +59,8 @@ use api::{self, method};
 #[allow(missing_docs)] pub const PARAM_RETURN_OLD: &str = "returnOld";
 #[allow(missing_docs)] pub const PARAM_WAIT_FOR_SYNC: &str = "waitForSync";
 #[allow(missing_docs)] pub const PARAM_WAIT_FOR_SYNC_REPLICATION: &str = "waitForSyncReplication";
+#[allow(missing_docs)] pub const PARAM_WITH_REVISIONS: &str = "withRevisions";
+#[allow(missing_docs)] pub const PARAM_WITH_DATA: &str = "withData";
 
 #[allow(missing_docs)] pub const PATH_ADMIN: &str = "/_admin";
 #[allow(missing_docs)] pub const PATH_API_COLLECTION: &str = "/_api/collection";
