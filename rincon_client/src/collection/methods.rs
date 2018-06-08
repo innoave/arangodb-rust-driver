@@ -3,7 +3,8 @@
 use rincon_core::api::method::{Method, Operation, Parameters, Prepare, RpcReturnType};
 use rincon_core::arango::protocol::{FIELD_CODE, FIELD_ID, FIELD_RESULT,
     PARAM_EXCLUDE_SYSTEM, PATH_API_COLLECTION, PATH_PROPERTIES, PATH_RENAME,
-    PATH_REVISION, PARAM_WITH_REVISIONS, PARAM_WITH_DATA};
+    PATH_REVISION, PARAM_WITH_REVISIONS, PARAM_WITH_DATA, PATH_CHECKSUM,
+    PATH_DOCUMENT_COUNT};
 #[cfg(feature = "cluster")]
 use rincon_core::arango::protocol::PARAM_WAIT_FOR_SYNC_REPLICATION;
 use super::types::*;
@@ -387,7 +388,7 @@ impl GetCollectionChecksum {
     }
 
     /// Constructs a new instance of the `GetCollectionChecksum` method to
-    /// get the revision of the collection with the given name.
+    /// get the checksum of the collection with the given name.
     pub fn with_name<N>(name: N) -> Self
         where N: Into<String>
     {
@@ -398,13 +399,13 @@ impl GetCollectionChecksum {
         }
     }
 
-    /// Set whether whether or not to include document revision ids in the
+    /// Set whether or not to include document revision ids in the
     /// checksum calculation.
     pub fn set_with_revisions(&mut self, with_revisions: bool) {
         self.with_revisions = with_revisions;
     }
 
-    /// Set whether whether or not to include document document body data
+    /// Set whether or not to include document body data
     /// in the checksum calculation.
     pub fn set_with_data(&mut self, with_data: bool) {
         self.with_data = with_data;
@@ -433,7 +434,7 @@ impl Prepare for GetCollectionChecksum {
 
     fn path(&self) -> String {
         String::from(PATH_API_COLLECTION)
-            + "/" + &self.name + "/checksum"
+            + "/" + &self.name + PATH_CHECKSUM
     }
 
     fn parameters(&self) -> Parameters {
@@ -445,6 +446,70 @@ impl Prepare for GetCollectionChecksum {
             params.insert(PARAM_WITH_DATA, 0);
         }
         params
+    }
+
+    fn header(&self) -> Parameters {
+        Parameters::empty()
+    }
+
+    fn content(&self) -> Option<&Self::Content> {
+        None
+    }
+}
+
+/// Fetch the number of documents in a collection identified by the given name.
+#[derive(Debug, Clone, PartialEq)]
+pub struct GetCollectionDocumentCount {
+    name: String,
+}
+
+impl GetCollectionDocumentCount {
+    /// Constructs a new instance of the `GetCollectionDocumentCount` method.
+    pub fn new(name: String) -> Self {
+        GetCollectionDocumentCount {
+            name,
+        }
+    }
+
+    /// Constructs a new instance of the `GetCollectionDocumentCount` method to
+    /// get the document count of the collection with the given name.
+    pub fn with_name<N>(name: N) -> Self
+        where N: Into<String>
+    {
+        GetCollectionDocumentCount {
+            name: name.into(),
+        }
+    }
+
+    /// Returns the name of the collection for which the document
+    /// count shall be fetched.
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+}
+
+impl Method for GetCollectionDocumentCount {
+    type Result = CollectionDocumentCount;
+    const RETURN_TYPE: RpcReturnType = RpcReturnType {
+        result_field: None,
+        code_field: Some(FIELD_CODE),
+    };
+}
+
+impl Prepare for GetCollectionDocumentCount {
+    type Content = ();
+
+    fn operation(&self) -> Operation {
+        Operation::Read
+    }
+
+    fn path(&self) -> String {
+        String::from(PATH_API_COLLECTION)
+            + "/" + &self.name + PATH_DOCUMENT_COUNT
+    }
+
+    fn parameters(&self) -> Parameters {
+        Parameters::empty()
     }
 
     fn header(&self) -> Parameters {

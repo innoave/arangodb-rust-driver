@@ -675,6 +675,66 @@ impl CollectionChecksum {
     }
 }
 
+/// This struct holds the document count of a collection together with some
+/// basic attributes.
+///
+/// It is returned by the `GetCollectionDocumentCount` method.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CollectionDocumentCount {
+    /// The id of the collection.
+    id: String,
+
+    /// The name of the collection.
+    name: String,
+
+    /// The type of the collection.
+    #[serde(rename = "type")]
+    kind: CollectionType,
+
+    /// The status of the collection.
+    status: CollectionStatus,
+
+    /// Whether the collection is system collection or regular collection.
+    is_system: bool,
+
+    /// The document count of the collection.
+    count: u64,
+}
+
+impl CollectionDocumentCount {
+    /// Returns the id of the collection.
+    pub fn id(&self) -> &str {
+        &self.id
+    }
+
+    /// Returns the name of the collection.
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    /// Returns the type of the collection.
+    pub fn kind(&self) -> CollectionType {
+        self.kind
+    }
+
+    /// Returns the status of the collection.
+    pub fn status(&self) -> CollectionStatus {
+        self.status
+    }
+
+    /// Returns whether the collection is a system or regular
+    /// collection.
+    pub fn is_system(&self) -> bool {
+        self.is_system
+    }
+
+    /// Returns the document count of the collection.
+    pub fn count(&self) -> u64 {
+        self.count
+    }
+}
+
 /// This struct holds the revision of a collection together with some basic
 /// attributes.
 ///
