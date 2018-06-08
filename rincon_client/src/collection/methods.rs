@@ -3,7 +3,8 @@
 use rincon_core::api::method::{Method, Operation, Parameters, Prepare, RpcReturnType};
 use rincon_core::arango::protocol::{FIELD_CODE, FIELD_ID, FIELD_RESULT,
     PARAM_EXCLUDE_SYSTEM, PATH_API_COLLECTION, PATH_PROPERTIES, PATH_RENAME,
-    PATH_REVISION};
+    PATH_REVISION, PARAM_WITH_REVISIONS, PARAM_WITH_DATA, PATH_CHECKSUM,
+    PATH_DOCUMENT_COUNT, PATH_LOAD, PATH_UNLOAD};
 #[cfg(feature = "cluster")]
 use rincon_core::arango::protocol::PARAM_WAIT_FOR_SYNC_REPLICATION;
 use super::types::*;
@@ -353,6 +354,284 @@ impl Prepare for GetCollection {
     fn path(&self) -> String {
         String::from(PATH_API_COLLECTION)
             + "/" + &self.name
+    }
+
+    fn parameters(&self) -> Parameters {
+        Parameters::empty()
+    }
+
+    fn header(&self) -> Parameters {
+        Parameters::empty()
+    }
+
+    fn content(&self) -> Option<&Self::Content> {
+        None
+    }
+}
+
+/// Fetch the checksum of the collection identified by the given name.
+#[derive(Debug, Clone, PartialEq)]
+pub struct GetCollectionChecksum {
+    name: String,
+    with_revisions: bool,
+    with_data: bool,
+}
+
+impl GetCollectionChecksum {
+    /// Constructs a new instance of the `GetCollectionChecksum` method.
+    pub fn new(name: String) -> Self {
+        GetCollectionChecksum {
+            name,
+            with_revisions: false,
+            with_data: false,
+        }
+    }
+
+    /// Constructs a new instance of the `GetCollectionChecksum` method to
+    /// get the checksum of the collection with the given name.
+    pub fn with_name<N>(name: N) -> Self
+        where N: Into<String>
+    {
+        GetCollectionChecksum {
+            name: name.into(),
+            with_revisions: false,
+            with_data: false,
+        }
+    }
+
+    /// Set whether or not to include document revision ids in the
+    /// checksum calculation.
+    pub fn set_with_revisions(&mut self, with_revisions: bool) {
+        self.with_revisions = with_revisions;
+    }
+
+    /// Set whether or not to include document body data
+    /// in the checksum calculation.
+    pub fn set_with_data(&mut self, with_data: bool) {
+        self.with_data = with_data;
+    }
+
+    /// Returns the name of the function that it will get the checksum of.
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+}
+
+impl Method for GetCollectionChecksum {
+    type Result = CollectionChecksum;
+    const RETURN_TYPE: RpcReturnType = RpcReturnType {
+        result_field: None,
+        code_field: Some(FIELD_CODE),
+    };
+}
+
+impl Prepare for GetCollectionChecksum {
+    type Content = ();
+
+    fn operation(&self) -> Operation {
+        Operation::Read
+    }
+
+    fn path(&self) -> String {
+        String::from(PATH_API_COLLECTION)
+            + "/" + &self.name + PATH_CHECKSUM
+    }
+
+    fn parameters(&self) -> Parameters {
+        let mut params = Parameters::with_capacity(2);
+        if !self.with_revisions {
+            params.insert(PARAM_WITH_REVISIONS, 0);
+        }
+        if !self.with_data {
+            params.insert(PARAM_WITH_DATA, 0);
+        }
+        params
+    }
+
+    fn header(&self) -> Parameters {
+        Parameters::empty()
+    }
+
+    fn content(&self) -> Option<&Self::Content> {
+        None
+    }
+}
+
+/// Fetch the number of documents in a collection identified by the given name.
+#[derive(Debug, Clone, PartialEq)]
+pub struct GetCollectionDocumentCount {
+    name: String,
+}
+
+impl GetCollectionDocumentCount {
+    /// Constructs a new instance of the `GetCollectionDocumentCount` method.
+    pub fn new(name: String) -> Self {
+        GetCollectionDocumentCount {
+            name,
+        }
+    }
+
+    /// Constructs a new instance of the `GetCollectionDocumentCount` method to
+    /// get the document count of the collection with the given name.
+    pub fn with_name<N>(name: N) -> Self
+        where N: Into<String>
+    {
+        GetCollectionDocumentCount {
+            name: name.into(),
+        }
+    }
+
+    /// Returns the name of the collection for which the document
+    /// count shall be fetched.
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+}
+
+impl Method for GetCollectionDocumentCount {
+    type Result = CollectionDocumentCount;
+    const RETURN_TYPE: RpcReturnType = RpcReturnType {
+        result_field: None,
+        code_field: Some(FIELD_CODE),
+    };
+}
+
+impl Prepare for GetCollectionDocumentCount {
+    type Content = ();
+
+    fn operation(&self) -> Operation {
+        Operation::Read
+    }
+
+    fn path(&self) -> String {
+        String::from(PATH_API_COLLECTION)
+            + "/" + &self.name + PATH_DOCUMENT_COUNT
+    }
+
+    fn parameters(&self) -> Parameters {
+        Parameters::empty()
+    }
+
+    fn header(&self) -> Parameters {
+        Parameters::empty()
+    }
+
+    fn content(&self) -> Option<&Self::Content> {
+        None
+    }
+}
+
+/// Loads the collection identified by the given name.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LoadCollection {
+    name: String,
+}
+
+impl LoadCollection {
+    /// Constructs a new instance of the `LoadCollection` method.
+    pub fn new(name: String) -> Self {
+        LoadCollection {
+            name,
+        }
+    }
+
+    /// Constructs a new instance of the `LoadCollection` method to
+    /// load the collection with the given name.
+    pub fn with_name<N>(name: N) -> Self
+        where N: Into<String>
+    {
+        LoadCollection {
+            name: name.into(),
+        }
+    }
+
+    /// Returns the name of the collection which will be loaded.
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+}
+
+impl Method for LoadCollection {
+    type Result = LoadCollectionResult;
+    const RETURN_TYPE: RpcReturnType = RpcReturnType {
+        result_field: None,
+        code_field: Some(FIELD_CODE),
+    };
+}
+
+impl Prepare for LoadCollection {
+    type Content = ();
+
+    fn operation(&self) -> Operation {
+        Operation::Modify
+    }
+
+    fn path(&self) -> String {
+        String::from(PATH_API_COLLECTION)
+            + "/" + &self.name + PATH_LOAD
+    }
+
+    fn parameters(&self) -> Parameters {
+        Parameters::empty()
+    }
+
+    fn header(&self) -> Parameters {
+        Parameters::empty()
+    }
+
+    fn content(&self) -> Option<&Self::Content> {
+        None
+    }
+}
+
+/// Unloads the collection identified by the given name.
+#[derive(Debug, Clone, PartialEq)]
+pub struct UnloadCollection {
+    name: String,
+}
+
+impl UnloadCollection {
+    /// Constructs a new instance of the `UnloadCollection` method.
+    pub fn new(name: String) -> Self {
+        UnloadCollection {
+            name,
+        }
+    }
+
+    /// Constructs a new instance of the `UnloadCollection` method to
+    /// load the collection with the given name.
+    pub fn with_name<N>(name: N) -> Self
+        where N: Into<String>
+    {
+        UnloadCollection {
+            name: name.into(),
+        }
+    }
+
+    /// Returns the name of the collection which will be unloaded.
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+}
+
+impl Method for UnloadCollection {
+    type Result = UnloadCollectionResult;
+    const RETURN_TYPE: RpcReturnType = RpcReturnType {
+        result_field: None,
+        code_field: Some(FIELD_CODE),
+    };
+}
+
+impl Prepare for UnloadCollection {
+    type Content = ();
+
+    fn operation(&self) -> Operation {
+        Operation::Modify
+    }
+
+    fn path(&self) -> String {
+        String::from(PATH_API_COLLECTION)
+            + "/" + &self.name + PATH_UNLOAD
     }
 
     fn parameters(&self) -> Parameters {
