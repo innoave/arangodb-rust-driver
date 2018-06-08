@@ -4,7 +4,7 @@ use rincon_core::api::method::{Method, Operation, Parameters, Prepare, RpcReturn
 use rincon_core::arango::protocol::{FIELD_CODE, FIELD_ID, FIELD_RESULT,
     PARAM_EXCLUDE_SYSTEM, PATH_API_COLLECTION, PATH_PROPERTIES, PATH_RENAME,
     PATH_REVISION, PARAM_WITH_REVISIONS, PARAM_WITH_DATA, PATH_CHECKSUM,
-    PATH_DOCUMENT_COUNT, PATH_LOAD};
+    PATH_DOCUMENT_COUNT, PATH_LOAD, PATH_UNLOAD};
 #[cfg(feature = "cluster")]
 use rincon_core::arango::protocol::PARAM_WAIT_FOR_SYNC_REPLICATION;
 use super::types::*;
@@ -563,12 +563,75 @@ impl Prepare for LoadCollection {
     type Content = ();
 
     fn operation(&self) -> Operation {
-        Operation::Replace
+        Operation::Modify
     }
 
     fn path(&self) -> String {
         String::from(PATH_API_COLLECTION)
             + "/" + &self.name + PATH_LOAD
+    }
+
+    fn parameters(&self) -> Parameters {
+        Parameters::empty()
+    }
+
+    fn header(&self) -> Parameters {
+        Parameters::empty()
+    }
+
+    fn content(&self) -> Option<&Self::Content> {
+        None
+    }
+}
+
+/// Unloads the collection identified by the given name.
+#[derive(Debug, Clone, PartialEq)]
+pub struct UnloadCollection {
+    name: String,
+}
+
+impl UnloadCollection {
+    /// Constructs a new instance of the `UnloadCollection` method.
+    pub fn new(name: String) -> Self {
+        UnloadCollection {
+            name,
+        }
+    }
+
+    /// Constructs a new instance of the `UnloadCollection` method to
+    /// load the collection with the given name.
+    pub fn with_name<N>(name: N) -> Self
+        where N: Into<String>
+    {
+        UnloadCollection {
+            name: name.into(),
+        }
+    }
+
+    /// Returns the name of the collection which will be unloaded.
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+}
+
+impl Method for UnloadCollection {
+    type Result = UnloadCollectionResult;
+    const RETURN_TYPE: RpcReturnType = RpcReturnType {
+        result_field: None,
+        code_field: Some(FIELD_CODE),
+    };
+}
+
+impl Prepare for UnloadCollection {
+    type Content = ();
+
+    fn operation(&self) -> Operation {
+        Operation::Modify
+    }
+
+    fn path(&self) -> String {
+        String::from(PATH_API_COLLECTION)
+            + "/" + &self.name + PATH_UNLOAD
     }
 
     fn parameters(&self) -> Parameters {
