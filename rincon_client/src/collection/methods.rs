@@ -3,7 +3,7 @@
 use rincon_core::api::method::{Method, Operation, Parameters, Prepare, RpcReturnType};
 use rincon_core::arango::protocol::{FIELD_CODE, FIELD_ID, FIELD_RESULT,
     PARAM_EXCLUDE_SYSTEM, PATH_API_COLLECTION, PATH_PROPERTIES, PATH_RENAME,
-    PATH_REVISION};
+    PATH_REVISION, PARAM_WITH_REVISIONS, PARAM_WITH_DATA};
 #[cfg(feature = "cluster")]
 use rincon_core::arango::protocol::PARAM_WAIT_FOR_SYNC_REPLICATION;
 use super::types::*;
