@@ -735,6 +735,65 @@ impl CollectionDocumentCount {
     }
 }
 
+/// This struct holds the result of a load operation.
+///
+/// It is returned by the `GetCollectionRevision` method.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LoadCollectionResult {
+    /// The id of the collection.
+    id: String,
+
+    /// The name of the collection.
+    name: String,
+
+    /// The document count of the collection.
+    count: u64,
+
+    /// The status of the collection.
+    status: CollectionStatus,
+
+    /// The type of the collection.
+    #[serde(rename = "type")]
+    kind: CollectionType,
+
+    /// Whether the collection is system collection or regular collection.
+    is_system: bool,
+}
+
+impl LoadCollectionResult {
+    /// Returns the id of the collection.
+    pub fn id(&self) -> &str {
+        &self.id
+    }
+
+    /// Returns the name of the collection.
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    /// Returns the document count of the collection.
+    pub fn count(&self) -> u64 {
+        self.count
+    }
+
+    /// Returns the type of the collection.
+    pub fn kind(&self) -> CollectionType {
+        self.kind
+    }
+
+    /// Returns the status of the collection.
+    pub fn status(&self) -> CollectionStatus {
+        self.status
+    }
+
+    /// Returns whether the collection is a system or regular
+    /// collection.
+    pub fn is_system(&self) -> bool {
+        self.is_system
+    }
+}
+
 /// This struct holds the revision of a collection together with some basic
 /// attributes.
 ///

@@ -84,6 +84,7 @@ use api::{self, method};
 #[allow(missing_docs)] pub const PATH_REVISION: &str = "/revision";
 #[allow(missing_docs)] pub const PATH_CHECKSUM: &str = "/checksum";
 #[allow(missing_docs)] pub const PATH_DOCUMENT_COUNT: &str = "/count";
+#[allow(missing_docs)] pub const PATH_LOAD: &str = "/load";
 #[allow(missing_docs)] pub const PATH_TARGET_VERSION: &str = "/target-version";
 #[allow(missing_docs)] pub const PATH_USER: &str = "/user";
 #[allow(missing_docs)] pub const PATH_VERTEX: &str = "/vertex";

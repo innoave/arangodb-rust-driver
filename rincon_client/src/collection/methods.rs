@@ -4,7 +4,7 @@ use rincon_core::api::method::{Method, Operation, Parameters, Prepare, RpcReturn
 use rincon_core::arango::protocol::{FIELD_CODE, FIELD_ID, FIELD_RESULT,
     PARAM_EXCLUDE_SYSTEM, PATH_API_COLLECTION, PATH_PROPERTIES, PATH_RENAME,
     PATH_REVISION, PARAM_WITH_REVISIONS, PARAM_WITH_DATA, PATH_CHECKSUM,
-    PATH_DOCUMENT_COUNT};
+    PATH_DOCUMENT_COUNT, PATH_LOAD};
 #[cfg(feature = "cluster")]
 use rincon_core::arango::protocol::PARAM_WAIT_FOR_SYNC_REPLICATION;
 use super::types::*;
@@ -506,6 +506,69 @@ impl Prepare for GetCollectionDocumentCount {
     fn path(&self) -> String {
         String::from(PATH_API_COLLECTION)
             + "/" + &self.name + PATH_DOCUMENT_COUNT
+    }
+
+    fn parameters(&self) -> Parameters {
+        Parameters::empty()
+    }
+
+    fn header(&self) -> Parameters {
+        Parameters::empty()
+    }
+
+    fn content(&self) -> Option<&Self::Content> {
+        None
+    }
+}
+
+/// Loads the collection identified by the given name.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LoadCollection {
+    name: String,
+}
+
+impl LoadCollection {
+    /// Constructs a new instance of the `LoadCollection` method.
+    pub fn new(name: String) -> Self {
+        LoadCollection {
+            name,
+        }
+    }
+
+    /// Constructs a new instance of the `LoadCollection` method to
+    /// load the collection with the given name.
+    pub fn with_name<N>(name: N) -> Self
+        where N: Into<String>
+    {
+        LoadCollection {
+            name: name.into(),
+        }
+    }
+
+    /// Returns the name of the collection which will be loaded.
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+}
+
+impl Method for LoadCollection {
+    type Result = LoadCollectionResult;
+    const RETURN_TYPE: RpcReturnType = RpcReturnType {
+        result_field: None,
+        code_field: Some(FIELD_CODE),
+    };
+}
+
+impl Prepare for LoadCollection {
+    type Content = ();
+
+    fn operation(&self) -> Operation {
+        Operation::Replace
+    }
+
+    fn path(&self) -> String {
+        String::from(PATH_API_COLLECTION)
+            + "/" + &self.name + PATH_LOAD
     }
 
     fn parameters(&self) -> Parameters {
